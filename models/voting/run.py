@@ -12,7 +12,7 @@ alphabet = ["back", "confirm", "password", "select", "vote",
 r = Repair(
     alg="pareto",
     sys=["sys.lts"],
-    env_p=["env.lts"],
+    env_p=["env2.lts"],
     safety=["p.lts"],
     preferred={   # rank the preferred behavior by importance
         PRIORITY3: ["back.lts"],

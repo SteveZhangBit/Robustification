@@ -8,6 +8,5 @@ VOTE[in:WHO][sel:WHO][v:WHO] = (
       v.enter -> VOTE[Voter][sel][v] | eo.enter -> VOTE[EO][sel][v]
     | when (in == Voter) select -> VOTE[in][in][in]
     | when (in == EO) select -> VOTE[in][in][v]
-    | when (sel == v) confirm -> DONE
-),
-DONE = ({v, eo}.enter -> DONE).
+    | when (sel == v) confirm -> P
+).
