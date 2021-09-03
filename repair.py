@@ -61,7 +61,6 @@ class Repair:
         # the type of search when minimizing controllable and observable events
         self.alg = alg
 
-        # TODO:
         # assert controllable should be a subset of observable
         # assert False, "Controllable should be a subset of observable"
         # assert observable is a subset of alphabet
