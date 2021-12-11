@@ -32,7 +32,7 @@ alphabet = [
 ]
 
 r = Repair(
-    alg="fast",
+    alg="pareto",
     sys=["power.lts", "lines.lts", "alarm.lts"],
     env=["deviation.lts"],
     safety=["p.lts"],
@@ -103,7 +103,10 @@ r = Repair(
 )
 
 result = r.synthesize()
-next(iter(result))
+cs = next(iter(result))
+
+# for c in cs:
+#     print(r.fsm2fsp(c["M_prime"], c["observable"], name="M"))
 
 # count = 1
 # for cs in result:
