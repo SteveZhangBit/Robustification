@@ -1,9 +1,11 @@
+from collections import deque
 import subprocess
 import os
 from os import path
 from random import random
 import shutil
 import DESops as d
+from DESops.automata.DFA import DFA
 import igraph
 from lts import StateMachine
 import itertools
@@ -80,8 +82,6 @@ class Repair:
         """
         key = (tuple(controllable), tuple(observable))
         if key in self.synthesize_cache:
-            if self.verbose:
-                print(datetime.now(), "Synthesize cache hit.")
             return self.synthesize_cache[key]
 
         plant = self.make_Euo_Euc(self.plant, controllable, observable)
@@ -238,23 +238,77 @@ class Repair:
             if key in self.check_preferred_cache:
                 if self.check_preferred_cache[key]:
                     fulfilled_preferred.append(p)
-                    if self.verbose:
-                        print(datetime.now(), "Check preferred cache hit.")
                 elif fail_stop:
                     return False
                 continue
+            
+            if self.verbose:
+                print(datetime.now(), "Check preferred behavior:", p)
             self.check_preferred_cache[key] = False
-
             p_fsm = self.fsp2fsm(p, self.alphabet, self.alphabet)
-            sup_plant.Euo = sup_plant.events - p_fsm.events
-            sup_plant_observed = d.composition.observer(sup_plant)
-            if d.compare_language(d.composition.parallel(sup_plant_observed, p_fsm), p_fsm):
+
+            if self._check_preferred(sup_plant, p_fsm):
                 fulfilled_preferred.append(p)
                 self.check_preferred_cache[key] = True
             elif fail_stop:
                 return False
 
         return True if fail_stop else fulfilled_preferred
+    
+    def _check_preferred(self, sup_plant: DFA, D: DFA):
+        G1, G2 = sup_plant, D
+        G1_x0 = G1.vs[0]
+        G2_x0 = G2.vs[0]
+        G_out_vertices = [
+            {
+                "name": (G1_x0["name"], G2_x0["name"]),
+                "marked": G1_x0["marked"] and G2_x0["marked"],
+            }
+        ]
+        G_out_names = {G_out_vertices[0]["name"]: 0}
+
+        visited_D = set()
+        queue = deque([(G1_x0, G2_x0)])
+
+        private_G1 = G1.events - G2.events
+        private_G2 = G2.events - G1.events
+
+        while len(queue) > 0:
+            x1, x2 = queue.popleft()
+            active_x1 = {e[1]: e[0] for e in x1["out"]}
+            active_x2 = {e[1]: e[0] for e in x2["out"]}
+            active_both = set(active_x1.keys()) & set(active_x2.keys())
+
+            for e in set(active_x1.keys()) | set(active_x2.keys()):
+                if e in active_both:
+                    x1_dst = G1.vs[active_x1[e]]
+                    x2_dst = G2.vs[active_x2[e]]
+                    visited_D.add((x2["name"], x2_dst["name"]))
+                elif e in private_G1:
+                    x1_dst = G1.vs[active_x1[e]]
+                    x2_dst = x2
+                elif e in private_G2:
+                    x1_dst = x1
+                    x2_dst = G2.vs[active_x2[e]]
+                    visited_D.add((x2["name"], x2_dst["name"]))
+                else:
+                    continue
+
+                dst_name = (x1_dst["name"], x2_dst["name"])
+                dst_index = G_out_names.get(dst_name)
+
+                if dst_index is None:
+                    G_out_vertices.append(
+                        {
+                            "name": dst_name,
+                            "marked": x1_dst["marked"] and x2_dst["marked"],
+                        }
+                    )
+                    dst_index = len(G_out_vertices) - 1
+                    G_out_names[dst_name] = dst_index
+                    queue.append((x1_dst, x2_dst))
+        
+        return D.ecount() == len(visited_D)
 
     def compose_M_prime(self, sup, controllable, observable):
         """
@@ -459,7 +513,7 @@ class Solutions:
                 # keep only the minimizations which work
                 for event_dict in p_list:
                     if self.repair.verbose:
-                        print(datetime.now(), "Minimize by removing...")
+                        print(datetime.now(), "Minimize events cost by removing...")
                         print("\tEc:", set(controllable) - set(event_dict["c"]))
                         print("\tEo:", set(observable) - set(event_dict["o"]))
                     # synthesize with the appropriate controllable/observable events
@@ -532,7 +586,7 @@ class Solutions:
             else:
                 continue
             if self.repair.verbose:
-                print(datetime.now(), "Minimize by removing...")
+                print(datetime.now(), "Minimize events cost by removing...")
                 print("\tEc:", set(controllable) - set(tmp_controllable))
                 print("\tEo:", set(observable) - set(tmp_observable))
             # synthesize with the appropriate controllable/observable events
@@ -593,7 +647,7 @@ class Solutions:
             # create the iterator for weakening the preferred behaviors
             self.D_remove_iter = self.next_least_to_remove()
 
-        print(datetime.now() - start_time, "Initialization completes.")
+        print(datetime.now(), "Initialization completes, time:", datetime.now() - start_time)
         return self
     
     def __next__(self):

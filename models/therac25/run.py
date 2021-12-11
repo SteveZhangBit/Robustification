@@ -35,9 +35,11 @@ r = Repair(
 )
 
 result = r.synthesize()
-count = 1
-for cs in result:
-    for c in cs:
-        print("Solution", count)
-        print(r.fsm2fsp(c["M_prime"], c["observable"], name="M"))
-        count += 1
+next(iter(result))
+
+# count = 1
+# for cs in result:
+#     for c in cs:
+#         print("Solution", count)
+#         print(r.fsm2fsp(c["M_prime"], c["observable"], name="M"))
+#         count += 1
