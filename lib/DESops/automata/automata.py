@@ -119,7 +119,7 @@ State_or_StateSet = Union[int, Set[int]]
 
 
 class _Automata:
-    def __init__(self, init=None, Euc=set(), Euo=set(), E=set()):
+    def __init__(self, init=None, Euc=set(), Euo=set(), E=set(), shallow=False):
         """
         Constructor can create an empty automata, or be created in one of the following ways:
         1.  From an existing igraph-Graph instance, the input graph is stored in self._graph
@@ -155,14 +155,20 @@ class _Automata:
             # Create Automata from igraph Graph
             graph = init
             # deepcopy copies attributes
-            self._graph = deepcopy(graph)
+            if shallow:
+                self._graph = graph.copy()
+            else:
+                self._graph = deepcopy(graph)
             self.events = E
             # find_obs_contr(self._graph, self.Euc, self.Euo, self.events)
 
         elif isinstance(init, _Automata):
             # Create Automata from another Automata
             # deepcopy copies attributes
-            self._graph = deepcopy(init._graph)
+            if shallow:
+                self._graph = init._graph.copy()
+            else:
+                self._graph = deepcopy(init._graph)
             self.events = init.events.copy()
             self.type = init.type
             self.Euo = init.Euo.copy()

@@ -573,7 +573,7 @@ def strict_subautomata(H: DFA, G: DFA, skip_H_tilde=False) -> Tuple[Optional[DFA
     """
     Constructs language-equivalent automata G_tilde and H_tilde from given G and H such that H_tilde is a strict subautomaton of G_tilde.
     """
-    A = H.copy()
+    A = H.shallow_copy()
 
     # Step 1:
     #   Adding a new unmarked state "dead"
@@ -612,7 +612,10 @@ def strict_subautomata(H: DFA, G: DFA, skip_H_tilde=False) -> Tuple[Optional[DFA
 
     # Step 3:
     #   Step 3.1: Obtaining G_tilde
-    G_tilde = AG.copy()  # Taking AG
+    if skip_H_tilde:
+        G_tilde = AG
+    else:
+        G_tilde = AG.shallow_copy()  # Taking AG
     G_states = {x["name"]: x["marked"] for x in G.vs}
     G_tilde.vs["marked"] = [G_states[state["name"][1]] for state in G_tilde.vs]
 
@@ -624,7 +627,7 @@ def strict_subautomata(H: DFA, G: DFA, skip_H_tilde=False) -> Tuple[Optional[DFA
         return None, G_tilde
 
     #   Step 3.2: Obtaining H_tilde by deleting all state of AG where the first state component is "dead".
-    H_tilde = AG.copy()
+    H_tilde = AG
     dead_states = [state for state in H_tilde.vs if state["name"][0] == "dead"]
     H_tilde.delete_vertices(dead_states)
     H_states = {x["name"]: x["marked"] for x in H.vs}

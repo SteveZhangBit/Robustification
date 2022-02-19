@@ -15,9 +15,9 @@ class DFA(_Automata):
     """docstring for """
 
     def __init__(
-        self, init=None, Euc=set(), Euo=set(), E=set(), check_DFA=True, **args
+        self, init=None, Euc=set(), Euo=set(), E=set(), check_DFA=True, shallow=False, **args
     ):
-        super(DFA, self).__init__(init, Euc, Euo, E)
+        super(DFA, self).__init__(init, Euc, Euo, E, shallow=shallow)
         if isinstance(init, ig.Graph) and check_DFA:
             all_out = self.check_DFA()
             if not all(all_out):
@@ -67,6 +67,9 @@ class DFA(_Automata):
         """
         A = DFA(self)
         return A
+    
+    def shallow_copy(self):
+        return DFA(self, shallow=True)
 
     def add_edge(self, source, target, label, check_DFA=True, fill_out=True, **kwargs):
         if not isinstance(label, Event):
