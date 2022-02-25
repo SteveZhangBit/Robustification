@@ -40,4 +40,5 @@ class Event:
         return not self.__eq__(other)
 
     def __hash__(self):
-        return hash(frozenset(self.__dict__.items()))
+        # return hash(frozenset(self.__dict__.items()))
+        return hash(self.label)
