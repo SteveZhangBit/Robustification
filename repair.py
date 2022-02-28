@@ -431,6 +431,7 @@ class Repair:
 class Solutions:
     def __init__(self, repair: Repair):
         self.repair = repair
+        self.synthesize_counter = 0
     
     def next_least_to_remove(self):
         # trim out the preferred behaviors that could never be satisfied
@@ -518,6 +519,7 @@ class Solutions:
                         print("\tEo:", set(observable) - set(event_dict["o"]))
                     # synthesize with the appropriate controllable/observable events
                     sup_plant, sup_plant_raw = self.repair._synthesize(event_dict["c"], event_dict["o"])
+                    self.synthesize_counter += 1
                     if sup_plant == None:
                         continue
                     # add minimization if preferred behavior maintained
@@ -591,6 +593,7 @@ class Solutions:
                 print("\tEo:", set(observable) - set(tmp_observable))
             # synthesize with the appropriate controllable/observable events
             sup_plant, sup_plant_raw = self.repair._synthesize(tmp_controllable, tmp_observable)
+            self.synthesize_counter += 1
             if sup_plant == None:
                 continue
             # add minimization if preferred behavior maintained
@@ -656,6 +659,7 @@ class Solutions:
 
         print(datetime.now(), "====================================>")
         start_time = datetime.now()
+        self.synthesize_counter = 0
         D_rm_sets = next(self.D_remove_iter)
         print(start_time, "Start finding the next solution(s)...")
         print(datetime.now(), f"Try to weaken the preferred behavior by either: {D_rm_sets}")
@@ -690,6 +694,7 @@ class Solutions:
                         possible_controllers.append(result)
         
         print(datetime.now(), "This iteration completes, time:", datetime.now() - start_time)
+        print(datetime.now(), "Number of controller synthesis process invoked:", self.synthesize_counter)
         # if the best cost among these subsets exceeds prior best cost add to controllers
         if min_cost_bracket > self.min_cost:
             self.min_cost = min_cost_bracket
