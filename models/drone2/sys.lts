@@ -1,0 +1,11 @@
+const N = 8
+
+EGO = A[1],
+A[i:1..N] = (
+  m[i] -> A[i] // stay
+| when (i == 1) m[2] -> A[2]
+| when (i == 2) m[1] -> A[1]
+| when (i > 1) m[(i-1)%(N-1)+2] -> A[(i-1)%(N-1)+2] // move clockwise
+| when (i > 2) m[(i-3)%(N-1)+2] -> A[(i-3)%(N-1)+2] // move counter-clockwise
+| when (i == 2) m[N] -> A[N]
+).

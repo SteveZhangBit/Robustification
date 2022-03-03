@@ -1,0 +1,6 @@
+property P = P[1][2],
+P[e:1..5][s:2..5] = (
+    m[t:1..5] -> if t != s then P[t][s] else ERROR
+  | m[e][s] -> if (s-1)%4+2 != e then P[e][(s-1)%4+2] else ERROR
+  | s[e][5] -> if e != 5 then P[e][5] else ERROR
+).
