@@ -5,14 +5,15 @@ def gen_sys(n):
   spec = f"""\
 const N = {n}
 
-EGO = A[1],
-A[i:1..N] = (
-  m[i] -> A[i] // stay
-| when (i == 1) m[2] -> A[2]
-| when (i == 2) m[1] -> A[1]
-| when (i > 1) m[(i-1)%(N-1)+2] -> A[(i-1)%(N-1)+2] // move clockwise
-| when (i > 2) m[(i-3)%(N-1)+2] -> A[(i-3)%(N-1)+2] // move counter-clockwise
-| when (i == 2) m[N] -> A[N]
+EGO = A[1][2],
+A[e:1..N][s:2..N] = (
+  when ((s-1)%(N-1)+2 != e) m[e] -> A[e][(s-1)%(N-1)+2] // stay
+| when (e == 1 && s != 2 && (s-1)%(N-1)+2 != 2) m[2] -> A[2][(s-1)%(N-1)+2]
+| when (e == 2) m[1] -> A[1][(s-1)%(N-1)+2]
+| when (e > 1 && (e-1)%(N-1)+2 != s) m[(e-1)%(N-1)+2] -> A[(e-1)%(N-1)+2][(s-1)%(N-1)+2] // move clockwise
+| when (e > 2 && (e-3)%(N-1)+2 != s && (e-3)%(N-1)+2 != (s-1)%(N-1)+2)
+    m[(e-3)%(N-1)+2] -> A[(e-3)%(N-1)+2][(s-1)%(N-1)+2] // move counter-clockwise
+| when (e == 2 && s != N && s != N-1) m[N] -> A[N][(s-1)%(N-1)+2]
 ).
 """
   return spec

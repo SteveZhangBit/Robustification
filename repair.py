@@ -283,14 +283,14 @@ class Repair:
                 if e in active_both:
                     x1_dst = G1.vs[active_x1[e]]
                     x2_dst = G2.vs[active_x2[e]]
-                    visited_D.add((x2["name"], x2_dst["name"]))
+                    visited_D.add((x2["name"], e.label, x2_dst["name"]))
                 elif e in private_G1:
                     x1_dst = G1.vs[active_x1[e]]
                     x2_dst = x2
                 elif e in private_G2:
                     x1_dst = x1
                     x2_dst = G2.vs[active_x2[e]]
-                    visited_D.add((x2["name"], x2_dst["name"]))
+                    visited_D.add((x2["name"], e.label, x2_dst["name"]))
                 else:
                     continue
 
