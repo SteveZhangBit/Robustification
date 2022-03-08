@@ -22,7 +22,7 @@ PRIORITY3 = 3
 
 
 class Repair:
-    def __init__(self, sys, env, safety, preferred, progress, alphabet, controllable, observable, verbose=False, alg="pareto"):
+    def __init__(self, sys, env, safety, preferred, progress, alphabet, controllable, observable, verbose=False, alg="pareto", no_deadlock=False):
         assert alg == "pareto" or alg == "fast", "algorithm should be 'pareto' or 'fast'"
 
         self.verbose = verbose
@@ -63,6 +63,8 @@ class Repair:
         # the type of search when minimizing controllable and observable events
         self.alg = alg
 
+        self.no_deadlock = no_deadlock
+
         # assert controllable should be a subset of observable
         # assert False, "Controllable should be a subset of observable"
         # assert observable is a subset of alphabet
@@ -73,6 +75,12 @@ class Repair:
 
     def synthesize(self):
         return Solutions(self)
+    
+    def has_deadlock(self, fsm):
+        for x in fsm.vs:
+            if len(x["out"]) == 0:
+                return True
+        return False
 
     def _synthesize(self, controllable, observable):
         """
@@ -100,6 +108,10 @@ class Repair:
             print(datetime.now(), "Found supremal sublanguage...")
             print("\tNumber of states:", L.vcount())
             print("\tNumber of transitions:", L.ecount())
+
+        if self.no_deadlock and self.has_deadlock(L):
+            self.synthesize_cache[key] = (None, None)
+            return self.synthesize_cache[key]
 
         L_observed = d.composition.observer(L)
         if self.verbose == True:

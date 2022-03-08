@@ -120,6 +120,7 @@ alphabet = [{alphabet}]
 
 r = Repair(
     alg="pareto",
+    no_deadlock=True,
     sys=["sys.lts"],
     env=["env.lts"],
     safety=["p.lts"],
