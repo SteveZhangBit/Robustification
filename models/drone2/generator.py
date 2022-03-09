@@ -108,7 +108,6 @@ def gen_run(n, stay):
   obs_p3 = ",".join(set(obs_p3))
 
   spec = f'''\
-from itertools import count
 import sys
 from os import path
 
