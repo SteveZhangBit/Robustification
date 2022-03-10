@@ -129,7 +129,7 @@ r = Repair(
         PRIORITY1: [],
         PRIORITY0: []
     }},
-    progress=[{progress}],
+    progress=[],
     alphabet=alphabet,
     controllable={{  # rank the controllable events by cost
         PRIORITY3: [],
@@ -146,7 +146,13 @@ r = Repair(
 )
 
 result = r.synthesize()
-cs = next(iter(result))'''
+cs = next(iter(result))
+# count = 1
+# for c in cs:
+#     print("Solution", count)
+#     print(r.fsm2fsp(c["M_prime"], c["observable"], name="M"))
+#     count += 1
+'''
   return spec
 
 if __name__ == "__main__":

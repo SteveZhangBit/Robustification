@@ -34,6 +34,7 @@ def supremal_sublanguage(
     preprocess: bool = True,
     prefix_closed: bool = False,
     num_cores: int = None,
+    no_deadlock: bool = False
 ) -> DFA:
     """
     Computes the supremal controllable and/or normal supervisor for the given plant and specification Automata.
@@ -95,9 +96,17 @@ def supremal_sublanguage(
         if mode in [Mode.CONTROLLABLE, Mode.CONTROLLABLE_NORMAL]:
             inacc_states = unary.find_inacc(H)
             H.delete_vertices(inacc_states)
+            
+            if no_deadlock:
+                deadlock_states = unary.find_deadlocks(H)
+                H.delete_vertices(deadlock_states)
+            else:
+                deadlock_states = set()
+
             bad_states_for_controllability = check_controllability(H, G, MAX_PROCESSES)
             H.delete_vertices(bad_states_for_controllability)
-            deleted_states |= inacc_states | bad_states_for_controllability
+            
+            deleted_states |= inacc_states | bad_states_for_controllability | deadlock_states
 
         if prefix_closed:
             bad_states_to_trim = unary.find_inacc(H)
@@ -283,3 +292,10 @@ def preprocessing(
     H.delete_vertices(dead_states)
 
     return G, H
+
+
+def check_deadlock(H: DFA) -> StateSet:
+    if H.vcount() == 0:
+        return set()
+    bad_states = unary.find_deadlocks(H)
+    return bad_states

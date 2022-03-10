@@ -102,17 +102,13 @@ class Repair:
         L = d.supervisor.offline_VLPPO(plant, prop)
         L.vs["marked"] = [1 for i in range(L.vcount())]
         L = d.composition.parallel(L, plant, prop)
-        L = d.supervisor.supremal_sublanguage(plant, L, prefix_closed=False, mode=d.supervisor.Mode.CONTROLLABLE_NORMAL)
+        L = d.supervisor.supremal_sublanguage(plant, L, prefix_closed=False, mode=d.supervisor.Mode.CONTROLLABLE_NORMAL, no_deadlock=self.no_deadlock)
 
         if self.verbose == True:
             print(datetime.now(), "Found supremal sublanguage...")
             print("\tNumber of states:", L.vcount())
             print("\tNumber of transitions:", L.ecount())
-
-        if self.no_deadlock and self.has_deadlock(L):
-            self.synthesize_cache[key] = (None, None)
-            return self.synthesize_cache[key]
-
+        
         L_observed = d.composition.observer(L)
         if self.verbose == True:
             print(datetime.now(), "Controller synthesis end")
