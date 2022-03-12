@@ -7,7 +7,8 @@ sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
 from repair import *
 
 alphabet = ["back", "confirm", "password", "select", "vote",
-            "v[1].enter","v[2].enter","v[1].exit","v[2].exit","eo[1].enter","eo[1].exit"
+            "v[1].enter","v[2].enter","v[1].exit","v[2].exit","eo[1].enter","eo[1].exit",
+            "v[1].done","v[2].done"
             ]
 
 
@@ -22,7 +23,7 @@ r = Repair(
         PRIORITY1: [],
         PRIORITY0: []
     },
-    progress=["confirm"],
+    progress=["v[1].done","v[2].done"],
     alphabet=alphabet,  # \alpha M \union \alpha E
     controllable={  # rank the controllable events by cost
         PRIORITY3: [
@@ -38,9 +39,14 @@ r = Repair(
           "v[1].enter","v[2].enter","v[1].exit","v[2].exit","eo[1].enter","eo[1].exit"
         ],
         PRIORITY1: [],
-        PRIORITY0: ["back", "confirm", "password", "select", "vote"]
+        PRIORITY0: ["back", "confirm", "password", "select", "vote", "v[1].done","v[2].done"]
     }
 )
 
 result = r.synthesize()
-next(iter(result))
+cs = next(iter(result))
+# count = 1
+# for c in cs:
+#     print("Solution", count)
+#     print(r.fsm2fsp(c["M_prime"], c["observable"], name="M"))
+#     count += 1

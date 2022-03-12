@@ -6,7 +6,7 @@ range N_VOTER = 1..{n}
 range N_EO = 1..{m}
 
 ENV = (v[i:N_VOTER].enter -> VOTER[i] | eo[j:N_EO].enter -> EO[j]),
-VOTER[i:N_VOTER] = (password -> VOTER[i] | select -> VOTER[i] | vote -> VOTER[i] | confirm -> v[i].exit -> ENV | back -> VOTER[i] | v[i].exit -> ENV),
+VOTER[i:N_VOTER] = (password -> VOTER[i] | select -> VOTER[i] | vote -> VOTER[i] | confirm -> v[i].done -> v[i].exit -> ENV | back -> VOTER[i] | v[i].exit -> ENV),
 EO[j:N_EO] = (select -> EO[j] | vote -> EO[j] | confirm -> eo[j].exit -> ENV | back -> EO[j] | eo[j].exit -> ENV).
 '''
 
@@ -26,7 +26,8 @@ VOTE[in:WHO][sel:WHO][v:WHO] = (
       v[i:N_VOTER].enter -> VOTE[i][sel][v] | eo[j:N_EO].enter -> VOTE[VOTERS+j][sel][v]
     | password -> VOTE[in][sel][in]
     | select -> VOTE[in][in][v]
-    | when (sel == v) confirm -> VOTE[in][NoBody][NoBody]
+    | when (in > 0 && in <= VOTERS && in == sel && sel == v) confirm -> VOTE[in][NoBody][NoBody]
+    | when (in > VOTERS && sel == v) confirm -> VOTE[in][NoBody][NoBody]
 ).
 '''
 
@@ -38,6 +39,7 @@ def gen_run(n, m):
     [f'"eo[{j}].enter"' for j in range(1, m+1)] +
     [f'"eo[{j}].exit"' for j in range(1, m+1)]
   )
+  dones = ",".join([f'"v[{i}].done"' for i in range(1, n+1)])
   return f'''
 import sys
 from os import path
@@ -47,7 +49,8 @@ sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
 from repair import *
 
 alphabet = ["back", "confirm", "password", "select", "vote",
-            {enter_exits}
+            {enter_exits},
+            {dones}
             ]
 
 
@@ -62,7 +65,7 @@ r = Repair(
         PRIORITY1: [],
         PRIORITY0: []
     }},
-    progress=["confirm"],
+    progress=[{dones}],
     alphabet=alphabet,  # \\alpha M \\union \\alpha E
     controllable={{  # rank the controllable events by cost
         PRIORITY3: [
@@ -78,12 +81,17 @@ r = Repair(
           {enter_exits}
         ],
         PRIORITY1: [],
-        PRIORITY0: ["back", "confirm", "password", "select", "vote"]
+        PRIORITY0: ["back", "confirm", "password", "select", "vote", {dones}]
     }}
 )
 
 result = r.synthesize()
-next(iter(result))
+cs = next(iter(result))
+# count = 1
+# for c in cs:
+#     print("Solution", count)
+#     print(r.fsm2fsp(c["M_prime"], c["observable"], name="M"))
+#     count += 1
 '''
 
 
