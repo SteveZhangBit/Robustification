@@ -1,1 +1,1 @@
-UP2 = (enter -> up -> UP2).
+UP = (e -> up -> END).

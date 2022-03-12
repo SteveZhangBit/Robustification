@@ -1,1 +1,1 @@
-UP = (x -> up -> UP | e -> up -> UP).
+UP = (x -> up -> END).
