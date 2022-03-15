@@ -1,0 +1,4 @@
+range LINES = 1..2
+
+T = (plug_in -> battery_charge -> battery_charge -> turn_on -> line[i:LINES].dispense_main_med_flow -> L[i]),
+L[i:LINES] = (line[i].dispense_main_med_flow -> L[i] | line[i].flow_complete -> END).

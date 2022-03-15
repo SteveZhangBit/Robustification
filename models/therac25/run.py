@@ -9,12 +9,12 @@ alphabet = ["x", "e", "enter", "up", "b", "setMode", "fire_xray", "fire_ebeam"]
 
 r = Repair(
     alg="pareto",
-    sys= ["sys.lts"],
-    env_p = ["env.lts"],
+    sys=["sys.lts"],
+    env=["env.lts"],
     safety =["p.lts"],
     preferred={   # rank the preferred behavior by importance
-        PRIORITY3: ["back1.lts"],
-        PRIORITY2: ["back2.lts"],
+        PRIORITY3: ["back1.lts", "back2.lts"],
+        PRIORITY2: ["back3.lts"],
         PRIORITY1: [],
         PRIORITY0: []
     },
@@ -34,8 +34,12 @@ r = Repair(
     }
 )
 
-result = r.synthesize(6)
-# print("Printing M' for each pareto-optimal...")
-# for i, c in enumerate(result):
-#     print("Solution", i)
-#     print(r.fsm2fsp(c["M_prime"], c["observable"], name="M"))
+result = r.synthesize()
+next(iter(result))
+
+# count = 1
+# for cs in result:
+#     for c in cs:
+#         print("Solution", count)
+#         print(r.fsm2fsp(c["M_prime"], c["observable"], name="M"))
+#         count += 1

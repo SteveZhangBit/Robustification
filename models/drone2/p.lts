@@ -1,0 +1,9 @@
+const N = 5
+const S5 = 5
+
+property P = P[1][2],
+P[e:1..N][s:2..N] = (
+  m[t:1..N] -> if t != s then P[t][s] else ERROR
+| m[e][s] -> if (s-1)%(N-1)+2 != e then P[e][(s-1)%(N-1)+2] else ERROR
+| s[e][S5] -> if e != S5 then P[e][S5] else ERROR
+).

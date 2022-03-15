@@ -34,6 +34,7 @@ def supremal_sublanguage(
     preprocess: bool = True,
     prefix_closed: bool = False,
     num_cores: int = None,
+    no_deadlock: bool = False
 ) -> DFA:
     """
     Computes the supremal controllable and/or normal supervisor for the given plant and specification Automata.
@@ -41,8 +42,8 @@ def supremal_sublanguage(
     if not num_cores:
         MAX_PROCESSES = 1
     else:
-        MAX_PROCESSES = max(cpu_count(), num_cores)
-    G_given = plant.copy()
+        MAX_PROCESSES = min(cpu_count(), num_cores)
+    G_given = plant.shallow_copy()
 
     if not isinstance(spec, DFA) and not isinstance(spec, set):
         raise TypeError(
@@ -52,9 +53,9 @@ def supremal_sublanguage(
         )
 
     if isinstance(spec, set):
-        G_given = plant.copy()
+        # G_given = plant.copy()
         G_given.vs["name"] = ["dead" if v in spec else v for v in plant.vs["name"]]
-        H_given = G_given.copy()
+        H_given = G_given.shallow_copy()
         H_given.delete_vertices([i.index for i in H_given.vs if i["name"] == "dead"])
         skip_SA = True
 
@@ -62,7 +63,7 @@ def supremal_sublanguage(
         G_given.Euo.update(Euo if Euo is not None else plant.Euo)
     else:
         skip_SA = False
-        H_given = spec.copy()
+        H_given = spec.shallow_copy()
         if Euc is None:
             Euc = plant.Euc | spec.Euc
         if Euo is None:
@@ -95,9 +96,17 @@ def supremal_sublanguage(
         if mode in [Mode.CONTROLLABLE, Mode.CONTROLLABLE_NORMAL]:
             inacc_states = unary.find_inacc(H)
             H.delete_vertices(inacc_states)
+            
+            if no_deadlock:
+                deadlock_states = unary.find_deadlocks(H)
+                H.delete_vertices(deadlock_states)
+            else:
+                deadlock_states = set()
+
             bad_states_for_controllability = check_controllability(H, G, MAX_PROCESSES)
             H.delete_vertices(bad_states_for_controllability)
-            deleted_states |= inacc_states | bad_states_for_controllability
+            
+            deleted_states |= inacc_states | bad_states_for_controllability | deadlock_states
 
         if prefix_closed:
             bad_states_to_trim = unary.find_inacc(H)
@@ -262,7 +271,7 @@ def preprocessing(
 
     # 3. Extract H from G by deleteing all states ((x, y), z) of G where x = "dead".
     #       Names are (x, z) if skip_subautomata is True
-    H = G.copy()
+    H = G.shallow_copy()
     if skip_subautomata:
         dead_states = [v.index for v in H.vs if v["name"][0] == "dead"]
     else:
@@ -283,3 +292,10 @@ def preprocessing(
     H.delete_vertices(dead_states)
 
     return G, H
+
+
+def check_deadlock(H: DFA) -> StateSet:
+    if H.vcount() == 0:
+        return set()
+    bad_states = unary.find_deadlocks(H)
+    return bad_states

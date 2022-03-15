@@ -81,3 +81,12 @@ def find_incoacc(G: _Automata, states_removed=set()) -> set:
 
     bad_states = {v.index for v in G.vs if v.index not in good_states}
     return bad_states
+
+
+def find_deadlocks(G: _Automata) -> set:
+    if G.vcount() == 0:
+        return set()
+    bad_states = {
+        v.index for v in G.vs if len(v['out']) == 0
+    }
+    return bad_states

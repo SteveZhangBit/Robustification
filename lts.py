@@ -35,6 +35,8 @@ class StateMachine:
         with open(file) as f:
             obj = json.load(f)
             m = StateMachine(obj["process"], obj["transitions"], obj["alphabet"])
+            # Remove transitions to error state
+            m.transitions = list(filter(lambda x: x[2] != -1, m.transitions))
             m.accept = m.all_states()
             return m
 
@@ -81,6 +83,8 @@ class StateMachine:
 
     def to_fsm(self, controllable, observable):
         fsm = d.DFA()
+        assert(self.alphabet[0] == "_tau_")
+        fsm.events = set([d.Event(a) for a in self.alphabet[1:]])
         fsm.add_vertices(max(self.all_states()) + 1)
         fsm.add_edges(
             [(t[0], t[2]) for t in self.transitions],
