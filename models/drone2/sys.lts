@@ -1,12 +1,19 @@
 const N = 5
+const Unknown = 0
+const Front = 1
+const Back = 2
+range State = Unknown..Back
 
-EGO = A[1][2],
-A[e:1..N][s:2..N] = (
-  when ((s-1)%(N-1)+2 != e) m[e] -> A[e][(s-1)%(N-1)+2] // stay
-| when (e == 1 && s != 2 && (s-1)%(N-1)+2 != 2) m[2] -> A[2][(s-1)%(N-1)+2]
-| when (e == 2) m[1] -> A[1][(s-1)%(N-1)+2]
-| when (e > 1 && (e-1)%(N-1)+2 != s) m[(e-1)%(N-1)+2] -> A[(e-1)%(N-1)+2][(s-1)%(N-1)+2] // move clockwise
-| when (e > 2 && (e-3)%(N-1)+2 != s && (e-3)%(N-1)+2 != (s-1)%(N-1)+2)
-    m[(e-3)%(N-1)+2] -> A[(e-3)%(N-1)+2][(s-1)%(N-1)+2] // move counter-clockwise
-| when (e == 2 && s != N && s != N-1) m[N] -> A[N][(s-1)%(N-1)+2]
+EGO = D[1],
+D[e:1..N] = (
+  d[e][i:1..N] -> if (i == e%N+1) then A[e][Front]
+                  else if (e == 1 && i == N) then A[e][Back]
+                  else if (e > 1 && i == (e-2)%N+1) then A[e][Back]
+                  else A[e][Unknown]
+),
+A[e:1..N][s:State] = (
+  when (s != Back) m[e] -> D[e] // stay
+| when (s != Front) m[e%N+1] -> D[e%N+1] // move clockwise
+| when (s == Front && e == 1) m[N] -> D[N] // move counter-clockwise
+| when (s == Front && e > 1) m[(e-2)%N+1] -> D[(e-2)%N+1] // move counter-clockwise
 ).

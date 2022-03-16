@@ -631,8 +631,10 @@ class Solutions:
         # first synthesize with alphabets that are defined in the priority categories
         controllable = list(filter(lambda x: self.weight_dict[x][0] != "c", self.repair.alphabet))
         observable = list(filter(lambda x: self.weight_dict[x][1] != "o", self.repair.alphabet))
-        print(datetime.now(), "Number of controllable events:", len(controllable))
-        print(datetime.now(), "Number of observable events:", len(observable))
+        print(datetime.now(), "Number of controllable events with cost:",
+            len(controllable) - len(self.repair.controllable[PRIORITY0]))
+        print(datetime.now(), "Number of observable events with cost:",
+            len(observable) - len(self.repair.observable[PRIORITY0]))
 
         # synthesize a supervisor with the max controllable and observable events
         sup_plant, sup_plant_raw = self.repair._synthesize(controllable, observable)

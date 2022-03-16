@@ -1,6 +1,19 @@
-EGO = A1,
-A1 = (m[1] -> A1 | m[2] -> A2),
-A2 = (m[1] -> A1 | m[2] -> A2 | m[3] -> A3 | m[5] -> A5),
-A3 = (m[2] -> A2 | m[3] -> A3 | m[4] -> A4),
-A4 = (m[3] -> A3 | m[4] -> A4 | m[5] -> A5),
-A5 = (m[2] -> A2 | m[5] -> A5 | m[4] -> A4).
+const N = 5
+const Unknown = 0
+const Front = 1
+const Back = 2
+range State = Unknown..Back
+
+EGO = D[1],
+D[e:1..N] = (
+  d[e][i:1..N] -> if (i == e%N+1) then A[e][Front]
+                  else if (e == 1 && i == N) then A[e][Back]
+                  else if (e > 1 && i == (e-2)%N+1) then A[e][Back]
+                  else A[e][Unknown]
+),
+A[e:1..N][s:State] = (
+  when (s != Back) m[e] -> D[e] // stay
+| when (s != Front) m[e%N+1] -> D[e%N+1] // move clockwise
+| when (s == Front && e == 1) m[N] -> D[N] // move counter-clockwise
+| when (s == Front && e > 1) m[(e-2)%N+1] -> D[(e-2)%N+1] // move counter-clockwise
+).

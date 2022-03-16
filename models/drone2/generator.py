@@ -4,109 +4,80 @@ import sys
 def gen_sys(n):
   spec = f"""\
 const N = {n}
+const Unknown = 0
+const Front = 1
+const Back = 2
+range State = Unknown..Back
 
-EGO = A[1][2],
-A[e:1..N][s:2..N] = (
-  when ((s-1)%(N-1)+2 != e) m[e] -> A[e][(s-1)%(N-1)+2] // stay
-| when (e == 1 && s != 2 && (s-1)%(N-1)+2 != 2) m[2] -> A[2][(s-1)%(N-1)+2]
-| when (e == 2) m[1] -> A[1][(s-1)%(N-1)+2]
-| when (e > 1 && (e-1)%(N-1)+2 != s) m[(e-1)%(N-1)+2] -> A[(e-1)%(N-1)+2][(s-1)%(N-1)+2] // move clockwise
-| when (e > 2 && (e-3)%(N-1)+2 != s && (e-3)%(N-1)+2 != (s-1)%(N-1)+2)
-    m[(e-3)%(N-1)+2] -> A[(e-3)%(N-1)+2][(s-1)%(N-1)+2] // move counter-clockwise
-| when (e == 2 && s != N && s != N-1) m[N] -> A[N][(s-1)%(N-1)+2]
+EGO = D[1],
+D[e:1..N] = (
+  d[e][i:1..N] -> if (i == e%N+1) then A[e][Front]
+                  else if (e == 1 && i == N) then A[e][Back]
+                  else if (e > 1 && i == (e-2)%N+1) then A[e][Back]
+                  else A[e][Unknown]
+),
+A[e:1..N][s:State] = (
+  when (s != Back) m[e] -> D[e] // stay
+| when (s != Front) m[e%N+1] -> D[e%N+1] // move clockwise
+| when (s == Front && e == 1) m[N] -> D[N] // move counter-clockwise
+| when (s == Front && e > 1) m[(e-2)%N+1] -> D[(e-2)%N+1] // move counter-clockwise
 ).
 """
   return spec
 
 
-def gen_env(n, stay):
-  stay_const = "\n".join([f"const S{s} = {s}" for s in stay])
-  stay_when = "\n| ".join([
-    f"when (i == S{s}) s[1..N][S{s}] -> A[S{s}]" for s in stay
-  ])
-  stay_turn = "\n| ".join([
-    f"when (i == 1) s[e][S{s}] -> TURN[0][e][S{s}]" for s in stay
-  ])
+def gen_env(n):
   spec = f"""\
 const N = {n}
-{stay_const}
 
 SRV = A[2],
-A[i:2..N] = (
-  m[1..N][i] -> A[(i-1)%(N-1)+2] // move clockwise
-| {stay_when}
+A[i:1..N] = (
+  d[1..N][i] -> A[i] // report current location
+| c -> A[i%N+1] // move clockwise
+| when (i == 1) b -> A[N] // move counter-clockwise
+| when (i > 1) b -> A[(i-2)%N+1] // move counter-clockwise
 ).
 
-TURN = TURN[0][1][2],
-TURN[i:0..1][e:1..N][s:2..N] = (
-  when (i == 0) m[t:1..N] -> TURN[1][t][s]
-| when (i == 1) m[e][s] -> TURN[0][e][(s-1)%(N-1)+2]
-| {stay_turn}
+TURN = TURN[0],
+TURN[i:0..1] = (
+  when (i == 0) d[1..N][1..N] -> m[1..N] -> TURN[1]
+| when (i == 1) c -> TURN[0]
+| when (i == 1) b -> TURN[0]
 ).
 """
   return spec
 
 
-def gen_p(n, stay):
-  stay_const = "\n".join([f"const S{s} = {s}" for s in stay])
-  stay_error = "\n| ".join([
-    f"s[e][S{s}] -> if e != S{s} then P[e][S{s}] else ERROR" for s in stay
-  ])
+def gen_p(n):
   spec = f"""\
 const N = {n}
-{stay_const}
 
 property P = P[1][2],
-P[e:1..N][s:2..N] = (
-  m[t:1..N] -> if t != s then P[t][s] else ERROR
-| m[e][s] -> if (s-1)%(N-1)+2 != e then P[e][(s-1)%(N-1)+2] else ERROR
-| {stay_error}
+P[e:1..N][s:1..N] = (
+  m[i:1..N] -> if i != s then P[i][s] else ERROR
+| c -> if s%N+1 != e then P[e][s%N+1] else ERROR
+| when (s == 1) b -> if e != N then P[e][N] else ERROR
+| when (s > 1) b -> if (s-2)%N+1 != e then P[e][(s-2)%N+1] else ERROR
 ).
 """
   return spec
 
 
-def gen_run(n, stay):
-  alphabet = [f'"m[{i}]"' for i in range(1, n+1)] + \
-    [f'"m[{i}][{j}]"' for i in range(1, n+1) for j in range(2, n+1)]
-  for s in stay:
-    alphabet += [f'"s[{i}][{s}]"' for i in range(1, n+1)]
-  alphabet = ",".join(alphabet)
-
-  progress = ",".join([f'"m[{i}]"' for i in range(2, n+1)])
-  controllable = ",".join([f'"m[{i}]"' for i in range(1, n+1)])
-
-  obs_p0 = ",".join([f'"m[{i}]"' for i in range(1, n+1)])
-  
-  obs_p1 = ",".join([f'"m[{i}][{i}]"' for i in range(2, n+1)] +
-    [f'"s[{s}][{s}]"' for s in stay])
-
-  obs_p2 = ['"m[1][2]"', f'"m[2][{n}]"'] +\
-    [f'"m[{i}][{(i-1)%(n-1)+2}]"' for i in range(2, n+1)] +\
-    [f'"m[{i}][{(i-3)%(n-1)+2}]"' for i in range(3, n+1)]
-  for s in stay:
-    obs_p2 += [f'"s[{(s-1)%(n-1)+2}][{s}]"']
-    if s == 2:
-      obs_p2 += [f'"s[{n}][{s}]", f"s[1][{s}]"']
-    else:
-      obs_p2 += [f'"s[{(s-3)%(n-1)+2}][{s}]"']
-  obs_p2 = ",".join(set(obs_p2))
-
-  obs_p3 = ['"m[1][3]"', f'"m[1][{n}]"', f'"m[2][{n-1}]"', f'"m[3][{n}]"'] +\
-    [f'"m[{i}][{i%(n-1)+2}]"' for i in range(2, n+1)] +\
-    [f'"m[{i}][{(i-4)%(n-1)+2}]"' for i in range(4, n+1)]
-  for s in stay:
-    obs_p3 += [f'"s[{s%(n-1)+2}][{s}]"']
-    if s == 2:
-      obs_p3 += [f'"s[{n-1}][{s}]"']
-    elif s == 3:
-      obs_p3 += [f'"s[{n}][{s}]"', f'"s[1][{s}]"']
-    else:
-      obs_p3 += [f'"s[{(s-4)%(n-1)+2}][{s}]"']
-    if s == n:
-      obs_p3 += [f'"s[1][{s}]"']
-  obs_p3 = ",".join(set(obs_p3))
-
+def gen_run(n):
+  ego_moves = ",".join([f'"m[{i}]"' for i in range(1, n+1)])
+  ego_detects = ",\n    ".join([
+    ",".join([f'"d[{i}][{j}]"' for i in range(1, n+1)])
+    for j in range(1, n+1)
+  ])
+  obs_p0 = ",\n            ".join(
+    [",".join(['"d[1][1]"', '"d[1][2]"', f'"d[1][{n}]"'])] +
+    [",".join([f'"d[{i}][{i}]"', f'"d[{i}][{(i-2)%n+1}]"', f'"d[{i}][{i%n+1}]"']) for i in range(2, n+1)]
+  )
+  obs_p1 = ",\n            ".join(
+    [",".join(['"d[1][3]"', f'"d[1][{n-1}]"'])] +
+    [",".join(['"d[2][4]"', f'"d[2][{n}]"'])] +
+    [",".join([f'"d[{i}][{(i+1)%n+1}]"', f'"d[{i}][{(i-3)%n+1}]"']) for i in range(3, n+1)]
+  )
   spec = f'''\
 import sys
 from os import path
@@ -115,33 +86,42 @@ sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
 
 from repair import *
 
-alphabet = [{alphabet}]
+alphabet = [
+    "b", "c",
+    {ego_moves},
+    {ego_detects},
+]
 
 r = Repair(
     alg="pareto",
-    no_deadlock=True,
     sys=["sys.lts"],
     env=["env.lts"],
     safety=["p.lts"],
+    no_deadlock=True,
     preferred={{   # rank the preferred behavior by importance
         PRIORITY3: [],
         PRIORITY2: [],
         PRIORITY1: [],
         PRIORITY0: []
     }},
-    progress=[],
-    alphabet=alphabet,
+    progress=[{ego_moves}],
+    alphabet=alphabet,  # \\alpha M \\union \\alpha E
     controllable={{  # rank the controllable events by cost
         PRIORITY3: [],
         PRIORITY2: [],
         PRIORITY1: [],
-        PRIORITY0: [{controllable}]
+        PRIORITY0: [{ego_moves}]
     }},
     observable={{    # rank observable events by cost
         PRIORITY3: [],
-        PRIORITY2: [{obs_p2}],
-        PRIORITY1: [{obs_p1}],
-        PRIORITY0: [{obs_p0}]
+        PRIORITY2: [],
+        PRIORITY1: [
+            {obs_p1},
+        ],
+        PRIORITY0: [
+            {ego_moves},
+            {obs_p0},
+        ]
     }}
 )
 
@@ -156,16 +136,15 @@ cs = next(iter(result))
   return spec
 
 if __name__ == "__main__":
-  if len(sys.argv) < 3:
-    print("Usage: generator.py n stay...")
+  if len(sys.argv) < 2:
+    print("Usage: generator.py n")
     exit(0)
   n = int(sys.argv[1])
-  stay = list(map(lambda x: int(x), sys.argv[2:]))
   with open("sys.lts", "w") as f:
     f.write(gen_sys(n))
   with open("env.lts", "w") as f:
-    f.write(gen_env(n, stay))
+    f.write(gen_env(n))
   with open("p.lts", "w") as f:
-    f.write(gen_p(n, stay))
+    f.write(gen_p(n))
   with open("run.py", "w") as f:
-    f.write(gen_run(n, stay))
+    f.write(gen_run(n))

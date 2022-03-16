@@ -6,29 +6,30 @@ sys.path.append(path.dirname(path.dirname(path.dirname(path.abspath(__file__))))
 
 from repair import *
 
-alphabet = ["m[1]", "m[2]", "m[3]", "m[4]", "m[5]",
-
-            "m[1][2]", "m[2][2]", "m[3][2]", "m[4][2]", "m[5][2]",
-            "m[1][3]", "m[2][3]", "m[3][3]", "m[4][3]", "m[5][3]",
-            "m[1][4]", "m[2][4]", "m[3][4]", "m[4][4]", "m[5][4]",
-            "m[1][5]", "m[2][5]", "m[3][5]", "m[4][5]", "m[5][5]",
-
-            "s[1][5]", "s[2][5]", "s[3][5]", "s[4][5]", "s[5][5]"
-            ]
+alphabet = [
+    "b", "c",
+    "m[1]", "m[2]", "m[3]", "m[4]", "m[5]",
+    "d[1][1]", "d[2][1]", "d[3][1]", "d[4][1]", "d[5][1]",
+    "d[1][2]", "d[2][2]", "d[3][2]", "d[4][2]", "d[5][2]",
+    "d[1][3]", "d[2][3]", "d[3][3]", "d[4][3]", "d[5][3]",
+    "d[1][4]", "d[2][4]", "d[3][4]", "d[4][4]", "d[5][4]",
+    "d[1][5]", "d[2][5]", "d[3][5]", "d[4][5]", "d[5][5]",
+]
 
 
 r = Repair(
-    alg="pareto",
+    alg="fast",
     sys=["sys.lts"],
     env=["env.lts"],
     safety=["p.lts"],
+    no_deadlock=True,
     preferred={   # rank the preferred behavior by importance
         PRIORITY3: [],
         PRIORITY2: [],
         PRIORITY1: [],
         PRIORITY0: []
     },
-    progress=["m[2]", "m[3]", "m[4]", "m[5]"],
+    progress=["m[1]", "m[2]", "m[3]", "m[4]", "m[5]"],
     alphabet=alphabet,  # \alpha M \union \alpha E
     controllable={  # rank the controllable events by cost
         PRIORITY3: [],
@@ -37,18 +38,23 @@ r = Repair(
         PRIORITY0: ["m[1]", "m[2]", "m[3]", "m[4]", "m[5]"]
     },
     observable={    # rank observable events by cost
-        PRIORITY3: [
-            # "m[1][3]", "m[1][5]", "m[2][4]", "m[3][5]", "m[4][2]", "m[5][3]",
-            # "s[3][5]", "s[1][5]"
-        ],
-        PRIORITY2: [
-            "m[1][2]", "m[2][3]", "m[2][5]", "m[3][2]", "m[3][4]", "m[4][3]", "m[4][5]", "m[5][2]", "m[5][4]",
-            "s[2][5]", "s[4][5]"
-        ],
+        PRIORITY3: [],
+        PRIORITY2: [],
         PRIORITY1: [
-            "m[2][2]", "m[3][3]", "m[4][4]", "m[5][5]", "s[5][5]"
+            "d[1][3]", "d[1][4]",
+            "d[2][4]", "d[2][5]",
+            "d[3][5]", "d[3][1]",
+            "d[4][1]", "d[4][2]",
+            "d[5][2]", "d[5][3]"
         ],
-        PRIORITY0: ["m[1]", "m[2]", "m[3]", "m[4]", "m[5]"]
+        PRIORITY0: [
+            "m[1]", "m[2]", "m[3]", "m[4]", "m[5]",
+            "d[1][1]", "d[1][2]", "d[1][5]",
+            "d[2][2]", "d[2][1]", "d[2][3]",
+            "d[3][3]", "d[3][2]", "d[3][4]",
+            "d[4][4]", "d[4][3]", "d[4][5]",
+            "d[5][5]", "d[5][4]", "d[5][1]"
+        ]
     }
 )
 
