@@ -40,30 +40,28 @@ python run.py
 This program searches the pareto-optimal solutions of the voting example. Then, it should print the following results:
 ```
 ...
-2022-03-15 15:53:20.962278 Size of the plant: 12 states, 27 transitions
-2022-03-15 15:53:20.962565 ====================================>
-2022-03-15 15:53:20.962564 Initializing search by using pareto search...
-2022-03-15 15:53:20.962583 Number of preferred behaviors: 1
-2022-03-15 15:53:20.962607 Number of controllable events: 9
-2022-03-15 15:53:20.962612 Number of observable events: 9
-2022-03-15 15:53:21.024936 Read back.lts...
-2022-03-15 15:53:21.817714 Maximum fulfilled preferred behavior: ['back.lts']
-2022-03-15 15:53:21.828250 Start search from events:
+2022-03-16 23:53:01.584641 Size of the plant: 12 states, 27 transitions
+2022-03-16 23:53:01.584748 ====================================>
+2022-03-16 23:53:01.584746 Initializing search by using pareto search...
+2022-03-16 23:53:01.584768 Number of preferred behaviors: 1
+2022-03-16 23:53:01.584805 Number of controllable events with cost: 4
+2022-03-16 23:53:01.585236 Number of observable events with cost: 4
+2022-03-16 23:53:01.647576 Read back.lts...
+2022-03-16 23:53:02.549111 Maximum fulfilled preferred behavior: ['back.lts']
+2022-03-16 23:53:02.565136 Start search from events:
         Ec: ['back', 'confirm', 'password', 'select', 'vote']
         Eo: ['back', 'confirm', 'eo.enter', 'eo.exit', 'password', 'select', 'v.enter', 'v.exit', 'vote']
-2022-03-15 15:53:21.828385 Initialization completes, time: 0:00:00.865823
-2022-03-15 15:53:21.828402 ====================================>
-2022-03-15 15:53:21.828414 Weaken the preferred behavior by 0 Essential, 0 Important, and 0 Minor...
-2022-03-15 15:53:21.828406 Start finding the next solution(s)...
-2022-03-15 15:53:21.828435 Try to weaken the preferred behavior by either: [()]
-2022-03-15 15:53:23.168601 This iteration completes, time: 0:00:01.340199
-2022-03-15 15:53:23.169002 Number of controller synthesis process invoked: 14
-
+2022-03-16 23:53:02.565463 Initialization completes, time: 0:00:00.980719
+2022-03-16 23:53:02.565584 ====================================>
+2022-03-16 23:53:02.565609 Weaken the preferred behavior by 0 Essential, 0 Important, and 0 Minor...
+2022-03-16 23:53:02.565597 Start finding the next solution(s)...
+2022-03-16 23:53:02.565697 Try to weaken the preferred behavior by either: [()]
+2022-03-16 23:53:04.041189 This iteration completes, time: 0:00:01.475596
+2022-03-16 23:53:04.041283 Number of controller synthesis process invoked: 14
 ...
-
-2022-03-15 15:53:23.196284 New pareto-optimal found:
-        Ec: {'select', 'confirm', 'back', 'password', 'vote'}
-        Eo: {'eo.enter', 'select', 'password', 'back', 'confirm', 'vote', 'eo.exit'}
+2022-03-16 23:53:04.073540 New pareto-optimal found:
+        Ec: {'password', 'confirm', 'vote', 'select', 'back'}
+        Eo: {'password', 'eo.exit', 'back', 'confirm', 'vote', 'select', 'eo.enter'}
         Preferred Behavior: {'back.lts'}
         Preferred Behavior Utility: 5
         Cost: -2
@@ -77,28 +75,30 @@ python run.py
 This program searches the pareto-optimal solutions of the Radiation Therapy system. Then, it should print the following results:
 ```
 ...
-2022-03-15 15:54:51.817889 Initializing search by using pareto search...
-2022-03-15 15:54:51.817908 Number of preferred behaviors: 3
-2022-03-15 15:54:51.817933 Number of controllable events: 8
-2022-03-15 15:54:51.818045 Number of observable events: 8
-2022-03-15 15:54:51.868565 Read back1.lts...
-2022-03-15 15:54:52.626067 Read back2.lts...
-2022-03-15 15:54:53.400547 Read back3.lts...
-2022-03-15 15:54:54.185018 Maximum fulfilled preferred behavior: ['back1.lts', 'back2.lts', 'back3.lts']
-2022-03-15 15:54:54.192952 Start search from events:
+2022-03-16 23:54:52.141086 Size of the plant: 21 states, 44 transitions
+2022-03-16 23:54:52.141315 ====================================>
+2022-03-16 23:54:52.141312 Initializing search by using pareto search...
+2022-03-16 23:54:52.141904 Number of preferred behaviors: 3
+2022-03-16 23:54:52.141978 Number of controllable events with cost: 8
+2022-03-16 23:54:52.142101 Number of observable events with cost: 1
+2022-03-16 23:54:52.197949 Read back1.lts...
+2022-03-16 23:54:53.075066 Read back2.lts...
+2022-03-16 23:54:53.958304 Read back3.lts...
+2022-03-16 23:54:54.756141 Maximum fulfilled preferred behavior: ['back1.lts', 'back2.lts', 'back3.lts']
+2022-03-16 23:54:54.764780 Start search from events:
         Ec: ['b']
         Eo: ['b', 'e', 'enter', 'fire_ebeam', 'fire_xray', 'setMode', 'up', 'x']
-2022-03-15 15:54:54.193046 Initialization completes, time: 0:00:02.375159
-2022-03-15 15:54:54.193062 ====================================>
-2022-03-15 15:54:54.193073 Weaken the preferred behavior by 0 Essential, 0 Important, and 0 Minor...
-2022-03-15 15:54:54.193066 Start finding the next solution(s)...
-2022-03-15 15:54:54.193093 Try to weaken the preferred behavior by either: [()]
-2022-03-15 15:54:54.254896 This iteration completes, time: 0:00:00.061834
-2022-03-15 15:54:54.254987 Number of controller synthesis process invoked: 1
-2022-03-15 15:54:54.257307 New pareto-optimal found:
+2022-03-16 23:54:54.764883 Initialization completes, time: 0:00:02.623573
+2022-03-16 23:54:54.764905 ====================================>
+2022-03-16 23:54:54.765502 Weaken the preferred behavior by 0 Essential, 0 Important, and 0 Minor...
+2022-03-16 23:54:54.765474 Start finding the next solution(s)...
+2022-03-16 23:54:54.765656 Try to weaken the preferred behavior by either: [()]
+2022-03-16 23:54:54.829395 This iteration completes, time: 0:00:00.063925
+2022-03-16 23:54:54.829483 Number of controller synthesis process invoked: 1
+2022-03-16 23:54:54.831873 New pareto-optimal found:
         Ec: {'b'}
-        Eo: {'e', 'fire_ebeam', 'x', 'fire_xray', 'setMode', 'b', 'up', 'enter'}
-        Preferred Behavior: {'back3.lts', 'back2.lts', 'back1.lts'}
+        Eo: {'e', 'b', 'enter', 'fire_xray', 'up', 'fire_ebeam', 'setMode', 'x'}
+        Preferred Behavior: {'back1.lts', 'back3.lts', 'back2.lts'}
         Preferred Behavior Utility: 28
         Cost: -13
 ```
@@ -111,27 +111,28 @@ python run.py
 We configure the program to use the fast-search strategy for the Infusion pump example. Then, it should print the following results:
 ```
 ...
-
-2022-03-15 15:56:07.115644 Initializing search by using fast search...
-2022-03-15 15:56:07.115663 Number of preferred behaviors: 2
-2022-03-15 15:56:07.115752 Number of controllable events: 11
-2022-03-15 15:56:07.115817 Number of observable events: 19
-2022-03-15 15:56:07.557077 Read ideal.lts...
-2022-03-15 15:56:08.388128 Read recover.lts...
-2022-03-15 15:56:09.226877 Maximum fulfilled preferred behavior: ['ideal.lts', 'recover.lts']
-2022-03-15 15:56:09.333604 Start search from events:
+2022-03-16 23:56:21.744292 Size of the plant: 104 states, 484 transitions
+2022-03-16 23:56:21.744413 ====================================>
+2022-03-16 23:56:21.744411 Initializing search by using fast search...
+2022-03-16 23:56:21.744433 Number of preferred behaviors: 2
+2022-03-16 23:56:21.744469 Number of controllable events with cost: 8
+2022-03-16 23:56:21.744578 Number of observable events with cost: 12
+2022-03-16 23:56:22.229873 Read ideal.lts...
+2022-03-16 23:56:23.060573 Read recover.lts...
+2022-03-16 23:56:23.882073 Maximum fulfilled preferred behavior: ['ideal.lts', 'recover.lts']
+2022-03-16 23:56:24.002922 Start search from events:
         Ec: ['line[1].dispense_main_med_flow', 'line[1].flow_complete', 'line[1].set_rate', 'line[1].start_dispense']
         Eo: ['alarm_silence', 'battery_charge', 'battery_spent', 'enable_alarm', 'line[1].change_settings', 'line[1].clear_rate', 'line[1].confirm_settings', 'line[1].dispense_main_med_flow', 'line[1].erase_and_unlock_line', 'line[1].flow_complete', 'line[1].lock_line', 'line[1].lock_unit', 'line[1].set_rate', 'line[1].start_dispense', 'line[1].unlock_unit', 'plug_in', 'turn_off', 'turn_on', 'unplug']
-2022-03-15 15:56:09.333762 Initialization completes, time: 0:00:02.218120
-2022-03-15 15:56:09.333779 ====================================>
-2022-03-15 15:56:09.333793 Weaken the preferred behavior by 0 Essential, 0 Important, and 0 Minor...
-2022-03-15 15:56:09.333784 Start finding the next solution(s)...
-2022-03-15 15:56:09.334017 Try to weaken the preferred behavior by either: [()]
-2022-03-15 15:56:25.386485 This iteration completes, time: 0:00:16.052706
-2022-03-15 15:56:25.386584 Number of controller synthesis process invoked: 13
-2022-03-15 15:56:25.448809 New solution found:
-        Ec: {'line[1].start_dispense', 'line[1].dispense_main_med_flow', 'line[1].flow_complete', 'line[1].set_rate'}
-        Eo: {'line[1].confirm_settings', 'line[1].change_settings', 'unplug', 'line[1].dispense_main_med_flow', 'line[1].flow_complete', 'line[1].start_dispense', 'line[1].set_rate', 'turn_off', 'turn_on', 'line[1].clear_rate'}
+2022-03-16 23:56:24.003093 Initialization completes, time: 0:00:02.258684
+2022-03-16 23:56:24.003112 ====================================>
+2022-03-16 23:56:24.003130 Weaken the preferred behavior by 0 Essential, 0 Important, and 0 Minor...
+2022-03-16 23:56:24.003117 Start finding the next solution(s)...
+2022-03-16 23:56:24.003982 Try to weaken the preferred behavior by either: [()]
+2022-03-16 23:56:41.616002 This iteration completes, time: 0:00:17.612889
+2022-03-16 23:56:41.616115 Number of controller synthesis process invoked: 13
+2022-03-16 23:56:41.685799 New solution found:
+        Ec: {'line[1].set_rate', 'line[1].dispense_main_med_flow', 'line[1].flow_complete', 'line[1].start_dispense'}
+        Eo: {'line[1].set_rate', 'line[1].clear_rate', 'line[1].dispense_main_med_flow', 'line[1].confirm_settings', 'turn_off', 'unplug', 'turn_on', 'line[1].start_dispense', 'line[1].flow_complete', 'line[1].change_settings'}
         Preferred Behavior: {'ideal.lts', 'recover.lts'}
         Preferred Behavior Utility: 70
         Cost: -106
