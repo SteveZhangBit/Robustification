@@ -2,6 +2,7 @@ package cmu.isr.lts
 
 import net.automatalib.util.automata.Automata
 import net.automatalib.util.automata.builders.AutomatonBuilders
+import net.automatalib.words.Word
 import net.automatalib.words.impl.Alphabets
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
@@ -107,7 +108,7 @@ class LTSTests {
     val c = parallelComposition(a, a.inputAlphabet, p_err, p.inputAlphabet)
     val res = checkDeadlock(c, c.inputAlphabet)
     assertEquals(true, res.violation)
-    assertEquals(listOf('a', 'b', 'c'), res.trace)
+    assertEquals(Word.fromSymbols('a', 'b', 'c'), res.trace)
   }
 
   @Test
@@ -134,6 +135,6 @@ class LTSTests {
     val p_err = makeErrorState(p, p.inputAlphabet)
     val res = checkSafety(a, a.inputAlphabet, p_err, p.inputAlphabet)
     assertEquals(true, res.violation)
-    assertEquals(listOf('a', 'a'), res.trace)
+    assertEquals(Word.fromSymbols('a', 'a'), res.trace)
   }
 }

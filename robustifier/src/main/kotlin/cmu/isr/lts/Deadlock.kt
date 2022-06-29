@@ -5,11 +5,12 @@ import net.automatalib.util.ts.traversal.TSTraversal
 import net.automatalib.util.ts.traversal.TSTraversalAction
 import net.automatalib.util.ts.traversal.TSTraversalVisitor
 import net.automatalib.words.Alphabet
+import net.automatalib.words.Word
 
 
 class DeadlockResult<I> {
   var violation: Boolean = false
-  var trace: List<I>? = null
+  var trace: Word<I>? = null
 
   override fun toString(): String {
     return if (violation) "Found deadlock: $trace" else "No deadlock"
@@ -19,15 +20,15 @@ class DeadlockResult<I> {
 
 private class DeadlockVisitor<S, I, T>(private val lts: DetLTS<S, I, T>,
                                        private val inputs: Alphabet<I>,
-                                       private val result: DeadlockResult<I>) : TSTraversalVisitor<S, I, T, List<I>> {
+                                       private val result: DeadlockResult<I>) : TSTraversalVisitor<S, I, T, Word<I>> {
   private val visited = mutableSetOf<S>()
 
-  override fun processInitial(state: S, outData: Holder<List<I>>?): TSTraversalAction {
-    outData!!.value = emptyList()
+  override fun processInitial(state: S, outData: Holder<Word<I>>?): TSTraversalAction {
+    outData!!.value = Word.epsilon()
     return TSTraversalAction.EXPLORE
   }
 
-  override fun startExploration(state: S, data: List<I>?): Boolean {
+  override fun startExploration(state: S, data: Word<I>?): Boolean {
     return if (state !in visited) {
       visited.add(state)
       true
@@ -38,13 +39,13 @@ private class DeadlockVisitor<S, I, T>(private val lts: DetLTS<S, I, T>,
 
   override fun processTransition(
     source: S,
-    srcData: List<I>?,
+    srcData: Word<I>?,
     input: I,
     transition: T,
     succ: S,
-    outData: Holder<List<I>>?
+    outData: Holder<Word<I>>?
   ): TSTraversalAction {
-    outData!!.value = srcData!! + listOf(input)
+    outData!!.value = srcData!!.append(input)
     if (!lts.isErrorState(succ) && noOutputTransition(succ)) {
       result.violation = true
       result.trace = outData.value
