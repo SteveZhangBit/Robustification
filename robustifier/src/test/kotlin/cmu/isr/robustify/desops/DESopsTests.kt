@@ -2,7 +2,6 @@ package cmu.isr.robustify.desops
 
 import net.automatalib.util.automata.Automata
 import net.automatalib.util.automata.builders.AutomatonBuilders
-import net.automatalib.util.automata.fsa.DFAs
 import net.automatalib.words.impl.Alphabets
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream

@@ -6,7 +6,7 @@ import java.io.BufferedReader
 import java.io.InputStream
 
 
-fun parse(input: InputStream): CompactSupDFA<String> {
+fun <I> parse(input: InputStream, transformer: (String) -> I): CompactSupDFA<I> {
   val reader = input.bufferedReader()
   val states = mutableListOf<Pair<String, Boolean>>()
   val stateTransitions = mutableMapOf<String, List<Pair<String, String>>>()
@@ -59,11 +59,12 @@ fun parse(input: InputStream): CompactSupDFA<String> {
     throw Error("Need number of states, get '${line}'")
   }
 
-  val builder = AutomatonBuilders.newDFA(Alphabets.fromCollection(alphabets.keys))
+  // Builder automaton
+  val builder = AutomatonBuilders.newDFA(Alphabets.fromCollection(alphabets.keys.map(transformer)))
     .withInitial(states[0].first)
   for (e in stateTransitions) {
     for (trans in e.value) {
-      builder.from(e.key).on(trans.first).to(trans.second)
+      builder.from(e.key).on(transformer(trans.first)).to(trans.second)
     }
   }
   for (state in states) {
@@ -71,9 +72,13 @@ fun parse(input: InputStream): CompactSupDFA<String> {
       builder.withAccepting(state.first)
   }
   return builder.create().asSupDFA(
-    Alphabets.fromCollection(alphabets.keys.filter { alphabets[it]!!.first }),
-    Alphabets.fromCollection(alphabets.keys.filter { alphabets[it]!!.second })
+    Alphabets.fromCollection(alphabets.keys.filter { alphabets[it]!!.first }.map(transformer)),
+    Alphabets.fromCollection(alphabets.keys.filter { alphabets[it]!!.second }.map(transformer))
   )
+}
+
+fun parse(input: InputStream): CompactSupDFA<String> {
+  return parse(input) { it }
 }
 
 

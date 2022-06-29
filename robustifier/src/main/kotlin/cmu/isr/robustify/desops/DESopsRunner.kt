@@ -18,6 +18,12 @@ class DESopsRunner {
 
   fun <I> synthesize(plant: SupervisoryDFA<*, I>, inputs1: Alphabet<I>,
                      prop: SupervisoryDFA<*, I>, inputs2: Alphabet<I>): CompactSupDFA<String>? {
+    return synthesize(plant, inputs1, prop, inputs2) { it }
+  }
+
+  fun <I, R> synthesize(plant: SupervisoryDFA<*, I>, inputs1: Alphabet<I>,
+                        prop: SupervisoryDFA<*, I>, inputs2: Alphabet<I>,
+                        transformer: (String) -> R): CompactSupDFA<R>? {
     val processBuilder = ProcessBuilder("python", "desops.py")
     val process = processBuilder.start()
 
@@ -25,7 +31,7 @@ class DESopsRunner {
     write(process.outputStream, prop, inputs2)
     process.waitFor()
     return when (process.exitValue()) {
-      0 -> parse(process.inputStream)
+      0 -> parse(process.inputStream, transformer)
       1 -> null
       else -> throw Error(process.errorStream.readBytes().toString())
     }

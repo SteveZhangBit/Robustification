@@ -51,6 +51,42 @@ class LTSTests {
   }
 
   @Test
+  fun testParallelComposition2() {
+    val a = AutomatonBuilders.newDFA(Alphabets.fromArray('a', 'b'))
+      .withInitial(0)
+      .from(0).on('a').to(1)
+      .from(1).on('b').to(0)
+      .withAccepting(0, 1)
+      .create()
+      .asLTS()
+
+    val b = AutomatonBuilders.newDFA(Alphabets.fromArray('b', 'c'))
+      .withInitial(0)
+      .from(0).on('b').to(1)
+      .from(1).on('c').to(0)
+      .withAccepting(0, 1)
+      .create()
+      .asLTS()
+
+    val c = parallelComposition(a, a.inputAlphabet, b, b.inputAlphabet)
+
+    val d = AutomatonBuilders.newDFA(Alphabets.fromArray('a', 'b', 'c'))
+      .withInitial(0)
+      .from(0).on('a').to(1)
+      .from(1).on('b').to(2)
+      .from(2)
+        .on('c').to(0)
+        .on('a').to(3)
+      .from(3).on('c').to(1)
+      .withAccepting(0, 1, 2, 3)
+      .create()
+      .asLTS()
+
+    assertEquals(c.inputAlphabet, d.inputAlphabet)
+    assert(Automata.testEquivalence(c, d, d.inputAlphabet))
+  }
+
+  @Test
   fun testDeadlock() {
     val p = AutomatonBuilders.newDFA(Alphabets.fromArray('a', 'b'))
       .withInitial(0)
