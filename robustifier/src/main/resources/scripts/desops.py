@@ -18,7 +18,7 @@ def read_nonempty_line(f) -> str:
         line = f.readline()
         # EOF
         if line == "":
-            sys.exit()
+            raise error.FileFormatError("Reach unexpected EOF")
         line = line.strip()
         if line == "":
             continue
@@ -282,22 +282,25 @@ def str2(name):
 
 
 if __name__ == "__main__":
-    # while True:
-    plant = read_fsm(sys.stdin)
-    prop = read_fsm(sys.stdin)
+    try:
+        plant = read_fsm(sys.stdin)
+        prop = read_fsm(sys.stdin)
 
-    if plant is not None and prop is not None:
-        L = d.supervisor.offline_VLPPO(plant, prop)
-        L.vs["marked"] = [1 for i in range(L.vcount())]
-        L = d.composition.parallel(L, plant, prop)
-        L = d.supervisor.supremal_sublanguage(plant, L, prefix_closed=False, mode=d.supervisor.Mode.CONTROLLABLE_NORMAL)
-        # L_observed = d.composition.observer(L)
+        if plant is not None and prop is not None:
+            L = d.supervisor.offline_VLPPO(plant, prop)
+            L.vs["marked"] = [1 for i in range(L.vcount())]
+            L = d.composition.parallel(L, plant, prop)
+            L = d.supervisor.supremal_sublanguage(plant, L, prefix_closed=False, mode=d.supervisor.Mode.CONTROLLABLE_NORMAL)
+            # L_observed = d.composition.observer(L)
 
-        if len(L.vs) != 0:
-            write_fsm(sys.stdout, L)
-            sys.exit(0)
+            if len(L.vs) != 0:
+                write_fsm(sys.stdout, L)
+                sys.exit(0)
+            else:
+                print("No controller")
+                sys.exit(-1)
         else:
-            print("No controller")
-            sys.exit(1)
-    else:
-        sys.exit(-1)
+            sys.exit(-2)
+    except Exception as e:
+        sys.stderr.write(repr(e))
+        sys.exit(-2)

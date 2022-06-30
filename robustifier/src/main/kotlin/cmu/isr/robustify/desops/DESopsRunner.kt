@@ -32,8 +32,8 @@ class DESopsRunner {
     process.waitFor()
     return when (process.exitValue()) {
       0 -> parse(process.inputStream, transformer)
-      1 -> null
-      else -> throw Error(process.errorStream.readBytes().toString())
+      -1 -> null
+      else -> throw Error("Exit code: ${process.exitValue()}. Caused by" + process.errorStream.bufferedReader().readText())
     }
   }
 
