@@ -3,9 +3,6 @@ package cmu.isr.robustify.supervisory
 import cmu.isr.lts.CompactDetLTS
 import cmu.isr.lts.DetLTS
 import cmu.isr.lts.asLTS
-import cmu.isr.robustify.desops.CompactSupDFA
-import cmu.isr.robustify.desops.SupervisoryDFA
-import cmu.isr.robustify.desops.asSupDFA
 import net.automatalib.automata.fsa.impl.compact.CompactDFA
 import net.automatalib.util.automata.builders.AutomatonBuilders
 import net.automatalib.util.ts.copy.TSCopy

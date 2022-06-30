@@ -33,7 +33,7 @@ class DESopsRunner {
     return when (process.exitValue()) {
       0 -> parse(process.inputStream, transformer)
       -1 -> null
-      else -> throw Error("Exit code: ${process.exitValue()}. Caused by" + process.errorStream.bufferedReader().readText())
+      else -> throw Error("Exit code: ${process.exitValue()}. Caused by: " + process.errorStream.bufferedReader().readText())
     }
   }
 

@@ -2,21 +2,20 @@ package cmu.isr.robustify.desops
 
 import net.automatalib.automata.fsa.DFA
 import net.automatalib.automata.fsa.impl.compact.CompactDFA
-import net.automatalib.words.Alphabet
 
 interface SupervisoryDFA<S, I> : DFA<S, I> {
 
-  val controllable: Alphabet<I>
+  val controllable: Collection<I>
 
-  val observable: Alphabet<I>
+  val observable: Collection<I>
 
 }
 
 
 class CompactSupDFA<I>(
   dfa: CompactDFA<I>,
-  override val controllable: Alphabet<I>,
-  override val observable: Alphabet<I>
+  override val controllable: Collection<I>,
+  override val observable: Collection<I>
 ) : CompactDFA<I>(dfa), SupervisoryDFA<Int, I> {
 
   override fun getSuccessor(transition: Int?): Int {
@@ -34,6 +33,6 @@ class CompactSupDFA<I>(
 }
 
 
-fun <I> CompactDFA<I>.asSupDFA(controllable: Alphabet<I>, observable: Alphabet<I>): CompactSupDFA<I> {
+fun <I> CompactDFA<I>.asSupDFA(controllable: Collection<I>, observable: Collection<I>): CompactSupDFA<I> {
   return CompactSupDFA(this, controllable, observable)
 }

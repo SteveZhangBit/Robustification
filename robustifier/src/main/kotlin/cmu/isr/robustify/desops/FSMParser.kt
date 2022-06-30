@@ -72,8 +72,8 @@ fun <I> parse(input: InputStream, transformer: (String) -> I): CompactSupDFA<I> 
       builder.withAccepting(state.first)
   }
   return builder.create().asSupDFA(
-    Alphabets.fromCollection(alphabets.keys.filter { alphabets[it]!!.first }.map(transformer)),
-    Alphabets.fromCollection(alphabets.keys.filter { alphabets[it]!!.second }.map(transformer))
+    alphabets.keys.filter { alphabets[it]!!.first }.map(transformer),
+    alphabets.keys.filter { alphabets[it]!!.second }.map(transformer)
   )
 }
 
